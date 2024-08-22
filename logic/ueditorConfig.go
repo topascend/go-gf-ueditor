@@ -97,6 +97,12 @@ var config = g.Map{
 
 // Config 配置项
 func Config(name string) interface{} {
+	ctx := context.Background()
+	val := g.Cfg("ueditor").MustGet(ctx, name).Val()
+	if val != nil {
+		return val
+	}
+
 	val, ok := config[name]
 	if !ok {
 		val = ""
