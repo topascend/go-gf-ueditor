@@ -16,7 +16,7 @@ package cmd
 
 import (
 	// 百度编辑器插件
-	ueditorController "UEditorGoFrame/internal/plugins/ueditor/controller"
+	ueditorController "github.com/topascend/go-gf-ueditor/controller"
 	
 	"context"
 	"github.com/gogf/gf/v2/frame/g"
