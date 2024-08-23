@@ -1,6 +1,9 @@
 package logic
 
-import "github.com/gogf/gf/v2/frame/g"
+import (
+	"context"
+	"github.com/gogf/gf/v2/frame/g"
+)
 
 var config = g.Map{
 	/* 上传图片配置项*/
@@ -96,8 +99,7 @@ var config = g.Map{
 }
 
 // Config 配置项
-func Config(name string) interface{} {
-	ctx := context.Background()
+func Config(ctx context.Context, name string) interface{} {
 	val := g.Cfg("ueditor").MustGet(ctx, name).Val()
 	if val != nil {
 		return val

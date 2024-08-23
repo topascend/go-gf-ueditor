@@ -39,26 +39,26 @@ func (s *sUEditor) Action(ctx context.Context, req *api.UEditorReq) (res g.Map, 
 		err = s.uEditorConfig(ctx, req.Callback) //特殊处理返回结果
 
 	//上传图片
-	case Config("imageActionName"):
+	case Config(ctx, "imageActionName"):
 		res, err = s.uEditorUpload(ctx, req)
 
 	//上传视频  上传文件
-	case Config("fileActionName"), Config("videoActionName"):
+	case Config(ctx, "fileActionName"), Config(ctx, "videoActionName"):
 		res, err = s.uEditorUpload(ctx, req)
 
 	//上传涂鸦
-	case Config("scrawlActionName"):
+	case Config(ctx, "scrawlActionName"):
 		res, err = s.uEditorScrawl(ctx, req)
 
 	//列出图片  列出文件
-	case Config("imageManagerActionName"), Config("fileManagerActionName"):
+	case Config(ctx, "imageManagerActionName"), Config(ctx, "fileManagerActionName"):
 		res, err = s.uEditorList(ctx, req)
 
 	//抓取远端图片
-	case Config("catcherActionName"):
+	case Config(ctx, "catcherActionName"):
 		res, err = s.uEditorCatchImage(ctx, req)
 
-	case Config("snapscreenActionName"):
+	case Config(ctx, "snapscreenActionName"):
 		err = gerror.New("暂不支持截图功能")
 
 	default:
@@ -89,20 +89,20 @@ func (s *sUEditor) uEditorUpload(ctx context.Context, req *api.UEditorReq) (res 
 	)
 
 	switch req.Action {
-	case Config("imageActionName"):
-		pathFormat = gconv.String(Config("imagePathFormat"))
-		allowFiles = gconv.SliceStr(Config("imageAllowFiles"))
-		maxSize = gconv.Int64(Config("imageMaxSize"))
+	case Config(ctx, "imageActionName"):
+		pathFormat = gconv.String(Config(ctx, "imagePathFormat"))
+		allowFiles = gconv.SliceStr(Config(ctx, "imageAllowFiles"))
+		maxSize = gconv.Int64(Config(ctx, "imageMaxSize"))
 
-	case Config("videoActionName"):
-		pathFormat = gconv.String(Config("videoPathFormat"))
-		allowFiles = gconv.SliceStr(Config("videoAllowFiles"))
-		maxSize = gconv.Int64(Config("videoMaxSize"))
+	case Config(ctx, "videoActionName"):
+		pathFormat = gconv.String(Config(ctx, "videoPathFormat"))
+		allowFiles = gconv.SliceStr(Config(ctx, "videoAllowFiles"))
+		maxSize = gconv.Int64(Config(ctx, "videoMaxSize"))
 
-	case Config("fileActionName"):
-		pathFormat = gconv.String(Config("filePathFormat"))
-		allowFiles = gconv.SliceStr(Config("fileAllowFiles"))
-		maxSize = gconv.Int64(Config("fileMaxSize"))
+	case Config(ctx, "fileActionName"):
+		pathFormat = gconv.String(Config(ctx, "filePathFormat"))
+		allowFiles = gconv.SliceStr(Config(ctx, "fileAllowFiles"))
+		maxSize = gconv.Int64(Config(ctx, "fileMaxSize"))
 	}
 
 	// 检查文件扩展名
@@ -148,7 +148,7 @@ func (s *sUEditor) uEditorScrawl(ctx context.Context, req *api.UEditorReq) (res 
 		host   = r.GetSchema() + "://" + r.Host
 	)
 
-	fileName := s.CreateUEditorFileName(gconv.String(Config("scrawlPathFormat")), "temp.png")
+	fileName := s.CreateUEditorFileName(gconv.String(Config(ctx, "scrawlPathFormat")), "temp.png")
 	str, err := gbase64.Decode([]byte(gconv.String(req.Base64)))
 	if err != nil {
 		return
@@ -185,12 +185,12 @@ func (s *sUEditor) uEditorList(ctx context.Context, req *api.UEditorReq) (res g.
 	)
 
 	// 图片列表  文件列表
-	if req.Action == Config("imageManagerActionName") {
-		listPath = gconv.String(Config("imageManagerListPath"))
-		allowFiles = gconv.SliceStr(Config("imageManagerAllowFiles"))
-	} else if req.Action == Config("fileManagerActionName") {
-		listPath = gconv.String(Config("fileManagerListPath"))
-		allowFiles = gconv.SliceStr(Config("fileManagerAllowFiles"))
+	if req.Action == Config(ctx, "imageManagerActionName") {
+		listPath = gconv.String(Config(ctx, "imageManagerListPath"))
+		allowFiles = gconv.SliceStr(Config(ctx, "imageManagerAllowFiles"))
+	} else if req.Action == Config(ctx, "fileManagerActionName") {
+		listPath = gconv.String(Config(ctx, "fileManagerListPath"))
+		allowFiles = gconv.SliceStr(Config(ctx, "fileManagerAllowFiles"))
 	}
 
 	allowExt := ""
@@ -238,13 +238,13 @@ func (s *sUEditor) uEditorCatchImage(ctx context.Context, req *api.UEditorReq) (
 	var err error
 	for key, img := range source {
 		ext := gfile.Ext(img)
-		err = s.CheckExt(ext, gconv.SliceStr(Config("catcherAllowFiles")))
+		err = s.CheckExt(ext, gconv.SliceStr(Config(ctx, "catcherAllowFiles")))
 		if err != nil {
 			allErr = errors.Join(allErr, gerror.New(img+" "+err.Error()))
 			continue
 		}
 
-		fileName := s.CreateUEditorFileName(gconv.String(Config("catcherPathFormat")), img)
+		fileName := s.CreateUEditorFileName(gconv.String(Config(ctx, "catcherPathFormat")), img)
 		absFile := absDir + fileName
 		size, err := s.saveRemoteImage(ctx, img, absFile)
 		if err != nil {
