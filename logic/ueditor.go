@@ -238,6 +238,16 @@ func (s *sUEditor) uEditorCatchImage(ctx context.Context, req *api.UEditorReq) (
 	var err error
 	for key, img := range source {
 		ext := gfile.Ext(img)
+		if ext == "" {
+			//处理微信公众号文章图片格式    正则表达式，匹配 wx_fmt= 后面的内容
+			re := regexp.MustCompile(`wx_fmt=([a-zA-Z0-9]+)`)
+			match := re.FindStringSubmatch(img)
+			ext = ".png"
+			if len(match) > 1 {
+				ext = "." + match[1]
+			}
+		}
+
 		err = s.CheckExt(ext, gconv.SliceStr(Config(ctx, "catcherAllowFiles")))
 		if err != nil {
 			allErr = errors.Join(allErr, gerror.New(img+" "+err.Error()))
@@ -260,6 +270,7 @@ func (s *sUEditor) uEditorCatchImage(ctx context.Context, req *api.UEditorReq) (
 			"title":    fileName,
 			"original": fileName,
 			"source":   fileName,
+			"host":     host,
 		}
 	}
 
